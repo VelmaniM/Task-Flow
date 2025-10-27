@@ -1,0 +1,141 @@
+body {
+  font-size: 1vw;
+  margin: 0;
+  padding: 0;
+}
+hr {
+  margin-top: 1vw;
+  height: 0.1vw;
+  border: none;
+  background-color: rgb(214, 214, 214);
+}
+.task-table {
+  border-collapse: collapse;
+  border: 0.1vw solid rgb(214, 214, 214);
+}
+
+.status {
+  width: 4vw;
+}
+.title {
+  width: 8vw;
+}
+.desc {
+  width: 19vw;
+}
+.priority {
+  width: 8vw;
+}
+.date {
+  width: 10vw;
+}
+.actionbtn {
+  width: 10vw;
+}
+.taskcount {
+  display: flex;
+  gap: 5vw;
+  margin-top: 2vw;
+  margin-bottom: 2vw;
+}
+.tsk-hover:hover {
+  color: white;
+  background-color: #6d56e1;
+}
+.tsk-hover:hover label span {
+  background-color: #c5bcf0;
+}
+span {
+  border-radius: 100%;
+  text-align: center;
+  margin-left: 1vw;
+  padding: 0.2vw 0.5vw 0.2vw 0.5vw;
+}
+.taskcount p {
+  border: 0.1vw solid rgb(214, 214, 214);
+  border-radius: 0.5vw;
+  padding-top: 0.5vw;
+  padding-bottom: 0.5vw;
+  padding-left: 1vw;
+  padding-right: 1vw;
+}
+.h-logo {
+  font-size: 1.2vw;
+}
+
+th,
+td {
+  border-bottom: 0.1vw solid rgb(214, 214, 214);
+  padding-top: 1vw;
+  padding-bottom: 1vw;
+  padding-left: 1vw;
+  padding-right: 1vw;
+  text-align: left;
+}
+th {
+  margin-right: 4vw;
+}
+
+.search-box input {
+  background-color: #f1f1f4;
+  padding-left: 1.5vw;
+  width: 100%;
+  border-style: none;
+  outline: none;
+}
+h1 {
+  margin-top: 1vw;
+  font-size: 2vw;
+  font-weight: bold;
+  padding-bottom: 0.5vw;
+}
+.search-box {
+  margin-top: 2vw;
+  padding-top: 1vw;
+  padding-bottom: 1vw;
+  padding-left: 1vw;
+  padding-right: 1vw;
+  border-radius: 0.5vw;
+  display: flex;
+  border: 0.1vw solid rgb(214, 214, 214);
+  width: 95%;
+}
+.update {
+  padding-right: 2vw;
+}
+
+input[type="checkbox"] {
+  accent-color: rgb(5, 255, 5);
+}
+
+.priority-high {
+  color: white;
+  background-color: red;
+  text-align: center;
+  border-radius: 1vw;
+  padding: 0.5vw 0.5vw 0.5vw 0.5vw;
+}
+
+.priority-medium {
+  text-align: center;
+  color: white;
+  background-color: blue;
+  border-radius: 1vw;
+  padding: 0.5vw 0.5vw 0.5vw 0.5vw;
+}
+
+.priority-low {
+  text-align: center;
+  color: white;
+  background-color: green;
+  border-radius: 1vw;
+  padding: 0.5vw 0.5vw 0.5vw 0.5vw;
+}
+
+.delete:hover {
+  color: red;
+}
+
+.update:hover {
+  color: green;
+}

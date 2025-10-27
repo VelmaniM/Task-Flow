@@ -1,0 +1,27 @@
+.app-container {
+  margin-top: 0.5vw;
+  margin-bottom: 0.5vw;
+  margin-left: 0.5vw;
+  margin-right: 0.5vw;
+  border: 0.1vw solid rgb(214, 214, 214);
+  display: flex;
+
+  background-color: #f1f1f4;
+}
+.content {
+  margin-top: 1vw;
+  margin-bottom: 1vw;
+  margin-left: 1vw;
+  width: 100%;
+  margin-right: 1vw;
+}
+.nav {
+  display: flex;
+  flex-direction: column;
+  align-content: space-between;
+
+  border-right: 0.1vw solid rgb(228, 228, 228);
+  padding-top: 2vw;
+  margin-left: 1vw;
+  margin-right: 1vw;
+}
