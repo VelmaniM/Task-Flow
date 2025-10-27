@@ -22,23 +22,16 @@
     {
       "id": "158a",
       "taskname": "Angular",
-      "description": "Angular",
+      "description": "afjkhfjhsd",
       "process": "Inprogress",
       "priority": "High"
     },
     {
       "id": "45e9",
-      "taskname": "NODE",
-      "description": "node js",
+      "taskname": "NODEJS",
+      "description": "node",
       "process": "Inprogress",
       "priority": "Medium"
-    },
-    {
-      "id": "15fb",
-      "taskname": "Sample",
-      "description": "n pregnancy, \"para\" or \"parity\" refers to the number of completed pregnancies that have reached at least 20 weeks of gestation, regardless  ",
-      "process": "Inprogress",
-      "priority": "Low"
     }
   ]
 }
