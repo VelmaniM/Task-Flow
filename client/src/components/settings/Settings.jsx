@@ -4,7 +4,7 @@ import axios from "axios";
 import { FaUserCircle, FaPalette, FaTrashAlt, FaCheckDouble, FaDownload, FaDatabase, FaCamera, FaEdit, FaArrowLeft, FaPhone, FaBriefcase, FaIdCard, FaSave } from "react-icons/fa";
 import "./Settings.css";
 
-const Settings = ({ onClose }) => {
+const Settings = ({ onClose, defaultView = "main" }) => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const fileInputRef = useRef(null);
@@ -19,8 +19,8 @@ const Settings = ({ onClose }) => {
   const [avatarMsg, setAvatarMsg] = useState("");
   const [showAvatarViewer, setShowAvatarViewer] = useState(false);
 
-  // Sub-view state
-  const [view, setView] = useState("main"); // "main" or "edit-profile"
+  // Sub-view state — initialized from prop so profile pic click opens edit directly
+  const [view, setView] = useState(defaultView); // "main" or "edit-profile"
   const [editTaskname, setEditTaskname] = useState("");
   const [editPhone, setEditPhone] = useState("");
   const [editJobTitle, setEditJobTitle] = useState("");
@@ -141,6 +141,17 @@ const Settings = ({ onClose }) => {
         alert("Completed tasks cleared successfully.");
       } catch (err) {
         alert("Failed to clear tasks.");
+      }
+    }
+  };
+
+  const handleClearAll = async () => {
+    if (window.confirm("Are you sure you want to delete ALL tasks? This action cannot be undone.")) {
+      try {
+        await axios.delete(`${import.meta.env.VITE_API_URL || "http://localhost:3001"}/data/all?userId=${user.email}`);
+        alert("All tasks deleted successfully.");
+      } catch (err) {
+        alert("Failed to delete tasks.");
       }
     }
   };
@@ -280,6 +291,19 @@ const Settings = ({ onClose }) => {
                   </div>
                   <div className="settings-item-right">
                     <button className="settings-action-btn danger-outline" onClick={handleClearCompleted}>Clear</button>
+                  </div>
+                </div>
+
+                <div className="settings-list-item">
+                  <div className="settings-item-left">
+                    <div className="settings-icon danger-icon"><FaCheckDouble /></div>
+                    <div>
+                      <h4>Clear All Data</h4>
+                      <p>Delete every task permanently</p>
+                    </div>
+                  </div>
+                  <div className="settings-item-right">
+                    <button className="settings-action-btn danger-solid" onClick={handleClearAll}>Clear All</button>
                   </div>
                 </div>
 

@@ -12,7 +12,7 @@ const __dirname = path.dirname(__filename);
 const app = express();
 app.use(cors());
 // Increase JSON payload limit to accept base64 images
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '25mb' }));
 
 // Ensure uploads folder exists and serve it
 const avatarsDir = path.join(__dirname, 'uploads', 'avatars');
@@ -52,7 +52,7 @@ const userSchema = new mongoose.Schema({
   taskname: { type: String }, // Made optional to prevent validation crashes for existing users
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  avatarUrl: { type: String }, // Now stores filesystem path
+  avatarUrl: { type: String }, // Stores base64 data URI or external URL
   // Additional details
   phone: { type: String },
   jobTitle: { type: String },
@@ -242,35 +242,16 @@ app.post('/api/auth/reset-password', async (req, res) => {
   }
 });
 
-// Update Avatar Route (Optimized to filesystem)
+// Update Avatar Route (Stores base64 directly in MongoDB — works on all cloud hosts)
 app.post('/api/auth/avatar', async (req, res) => {
   const { email, avatarUrl } = req.body;
   try {
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ message: 'User not found' });
     
-    let finalAvatarPath = avatarUrl; // fallback or if it's already a URL
-
-    // If it's a base64 string, write it to disk
-    if (avatarUrl && avatarUrl.startsWith('data:image')) {
-      const matches = avatarUrl.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
-      if (matches && matches.length === 3) {
-        const imageBuffer = Buffer.from(matches[2], 'base64');
-        
-        // Ensure a safe filename
-        const safeEmail = email.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-        const filename = `avatar_${safeEmail}_${Date.now()}.png`;
-        const filepath = path.join(avatarsDir, filename);
-        
-        fs.writeFileSync(filepath, imageBuffer);
-        finalAvatarPath = `http://localhost:3001/uploads/avatars/${filename}`;
-      }
-    } else if (!avatarUrl) {
-      // If user is removing their avatar, set to undefined so it is not stored in MongoDB
-      finalAvatarPath = undefined;
-    }
-
-    user.avatarUrl = finalAvatarPath;
+    // Store base64 directly in DB (no filesystem dependency)
+    // If avatarUrl is empty/null, remove it from DB
+    user.avatarUrl = avatarUrl || undefined;
     await user.save();
     
     // Create safe user object without password
@@ -424,6 +405,18 @@ app.delete('/data/completed', async (req, res) => {
     if (!userId) return res.status(400).json({ message: 'userId required' });
     await Task.deleteMany({ userId, process: 'Complete' });
     res.status(200).json({ message: 'Completed tasks deleted' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Delete ALL Tasks for a user
+app.delete('/data/all', async (req, res) => {
+  const { userId } = req.query;
+  try {
+    if (!userId) return res.status(400).json({ message: 'userId required' });
+    await Task.deleteMany({ userId });
+    res.status(200).json({ message: 'All tasks deleted' });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

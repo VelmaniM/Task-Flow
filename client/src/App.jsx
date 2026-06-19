@@ -30,6 +30,7 @@ const AuthRoute = ({ children }) => {
 
 const Layout = ({ children, isDarkMode, setIsDarkMode }) => {
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [settingsDefaultView, setSettingsDefaultView] = useState("main");
   const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
     const saved = localStorage.getItem("taskflow_sidebar");
     return saved !== null ? saved === "true" : true;
@@ -55,9 +56,14 @@ const Layout = ({ children, isDarkMode, setIsDarkMode }) => {
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
+  const openSettings = (view = "main") => {
+    setSettingsDefaultView(view);
+    setIsSettingsModalOpen(true);
+  };
+
   return (
     <div className="app-container">
-      <Navbar isSidebarOpen={isSidebarOpen} onOpenSettings={() => setIsSettingsModalOpen(true)} />
+      <Navbar isSidebarOpen={isSidebarOpen} onOpenSettings={() => openSettings("main")} />
       <div className={`main-content-area ${isSidebarOpen ? "" : "sidebar-closed"}`}>
         <div className="top-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "1rem 2rem", borderBottom: "1px solid var(--border-color)", backgroundColor: "var(--surface-color)" }}>
           <button className="global-toggle-btn" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
@@ -73,7 +79,8 @@ const Layout = ({ children, isDarkMode, setIsDarkMode }) => {
                 src={user.avatarUrl || "https://ui-avatars.com/api/?name=" + user.email} 
                 alt="Profile" 
                 style={{ width: "40px", height: "40px", borderRadius: "50%", objectFit: "cover", cursor: "pointer", border: "2px solid var(--primary-color)" }}
-                onClick={() => setIsSettingsModalOpen(true)}
+                onClick={() => openSettings("edit-profile")}
+                title="View Profile"
               />
             )}
           </div>
@@ -83,11 +90,15 @@ const Layout = ({ children, isDarkMode, setIsDarkMode }) => {
         </div>
       </div>
       {isSettingsModalOpen && (
-        <Settings onClose={() => setIsSettingsModalOpen(false)} />
+        <Settings 
+          onClose={() => setIsSettingsModalOpen(false)} 
+          defaultView={settingsDefaultView}
+        />
       )}
     </div>
   );
 };
+
 
 function App() {
   const [isDarkMode, setIsDarkMode] = useState(() => {
