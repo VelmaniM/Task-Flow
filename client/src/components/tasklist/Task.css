@@ -176,8 +176,21 @@
   background-color: rgba(248, 250, 252, 0.8);
 }
 
+body.dark-mode .premium-table tr:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
 .premium-table tr.completed-row {
   opacity: 0.7;
+}
+
+.premium-table tr.overdue-row {
+  background-color: rgba(239, 68, 68, 0.05);
+  border-left: 3px solid var(--danger-color);
+}
+
+body.dark-mode .premium-table tr.overdue-row {
+  background-color: rgba(239, 68, 68, 0.1);
 }
 
 .premium-table tr.completed-row td:nth-child(2),

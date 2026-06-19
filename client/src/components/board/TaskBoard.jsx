@@ -3,7 +3,7 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { FaRegClock } from "react-icons/fa";
-import "./KanbanBoard.css";
+import "./TaskBoard.css";
 
 const initialColumns = {
   "To Do": { id: "To Do", title: "To Do", taskIds: [] },
@@ -11,7 +11,7 @@ const initialColumns = {
   "Complete": { id: "Complete", title: "Completed", taskIds: [] }
 };
 
-const KanbanBoard = () => {
+const TaskBoard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [tasks, setTasks] = useState({});
@@ -34,7 +34,7 @@ const KanbanBoard = () => {
 
   const fetchTasks = async () => {
     try {
-      const res = await axios.get(`http://localhost:3001/data?userId=${user.email}`);
+      const res = await axios.get(`${import.meta.env.VITE_API_URL || "http://localhost:3001"}/data?userId=${user.email}`);
       const data = res.data;
       
       const taskMap = {};
@@ -56,9 +56,9 @@ const KanbanBoard = () => {
     }
   };
 
-  const isOverdue = (dueDate, status) => {
-    if (status === "Complete" || !dueDate) return false;
-    return new Date(dueDate) < new Date(new Date().toDateString());
+  const isOverdue = (createdDate, status) => {
+    if (status === "Complete" || !createdDate) return false;
+    return new Date(createdDate) < new Date(new Date().toDateString());
   };
 
   const isNewTask = (createdStr) => {
@@ -107,7 +107,7 @@ const KanbanBoard = () => {
     // Update backend
     const newStatus = finishColumn.id;
     try {
-      await axios.patch(`http://localhost:3001/data/${draggableId}`, { process: newStatus });
+      await axios.patch(`${import.meta.env.VITE_API_URL || "http://localhost:3001"}/data/${draggableId}`, { process: newStatus });
       setTasks(prev => ({
         ...prev,
         [draggableId]: { ...prev[draggableId], process: newStatus }
@@ -121,8 +121,8 @@ const KanbanBoard = () => {
   return (
     <div className="board-container">
       <div className="board-header">
-        <h1>Kanban Board</h1>
-        <p>Drag and drop tasks to update their progress.</p>
+        <h1>Task Board</h1>
+        <p>Use this board to visually track your tasks as they move through different stages of completion. Drag and drop cards between columns to update their status instantly.</p>
       </div>
 
       <div className="board-columns">
@@ -137,15 +137,14 @@ const KanbanBoard = () => {
               <Droppable droppableId={column.id}>
                 {(provided, snapshot) => (
                   <div
-                    className="task-list-droppable"
+                    className={`task-list-droppable ${snapshot.isDraggingOver ? 'dragging-over' : ''}`}
                     ref={provided.innerRef}
                     {...provided.droppableProps}
-                    style={{ backgroundColor: snapshot.isDraggingOver ? '#e2e8f0' : '#f8fafc' }}
                   >
                     {column.taskIds.map((taskId, index) => {
                       const task = tasks[taskId];
                       if (!task) return null;
-                      const overdue = isOverdue(task.dueDate, task.process);
+                      const overdue = isOverdue(task.createdDate, task.process);
                       
                       return (
                         <Draggable key={task.id} draggableId={task.id} index={index}>
@@ -174,11 +173,16 @@ const KanbanBoard = () => {
                               </div>
                               <p className="task-card-desc">{task.description}</p>
                               
-                              <div className="task-card-footer">
-                                <span className={`task-card-date ${overdue ? 'overdue' : ''}`}>
-                                  <FaRegClock />
-                                  {task.dueDate ? (overdue ? `${task.dueDate} (Overdue)` : task.dueDate) : "No due date"}
-                                </span>
+                              <div className="task-card-footer" style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
+                                {task.tag && (
+                                  <span className="task-tag" style={{backgroundColor: "rgba(99, 102, 241, 0.1)", color: "var(--primary-color)", padding: "0.2rem 0.5rem", borderRadius: "12px", fontSize: "0.7rem", fontWeight: "600"}}>
+                                    {task.tag}
+                                  </span>
+                                )}
+                                  <span className={`task-card-date ${overdue ? 'overdue' : ''}`} style={overdue ? {color: "var(--danger-color)", fontWeight: "bold"} : {}}>
+                                    <FaRegClock style={{marginRight: "4px"}} />
+                                    {task.createdDate ? (overdue ? `${task.createdDate} (Overdue)` : task.createdDate) : "No date"}
+                                  </span>
                               </div>
                             </div>
                           )}
@@ -200,4 +204,4 @@ const KanbanBoard = () => {
   );
 };
 
-export default KanbanBoard;
+export default TaskBoard;

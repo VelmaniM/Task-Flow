@@ -7,6 +7,14 @@
     <title>Task Flow</title>
   </head>
   <body>
+    <script>
+      (function() {
+        var theme = localStorage.getItem("taskflow_theme");
+        if (theme === "dark") {
+          document.body.classList.add("dark-mode");
+        }
+      })();
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

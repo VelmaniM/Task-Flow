@@ -12,11 +12,12 @@ const Update = () => {
     description: "",
     process: "",
     priority: "",
-    dueDate: "",
+    createdDate: "",
+    tag: "",
   });
 
   useEffect(() => {
-    axios.get(`http://localhost:3001/data/${id}`).then((res) => {
+    axios.get(`${import.meta.env.VITE_API_URL || "http://localhost:3001"}/data/${id}`).then((res) => {
       setUpdate(res.data);
     }).catch(err => {
       console.error("Error fetching task for update", err);
@@ -29,11 +30,11 @@ const Update = () => {
   };
 
   const handleUpdate = () => {
-    if (!update.taskname || !update.description || !update.priority || !update.dueDate) {
+    if (!update.taskname || !update.description || !update.priority || !update.createdDate) {
       alert("Please fill in all fields.");
       return;
     }
-    axios.put(`http://localhost:3001/data/${id}`, update).then((res) => {
+    axios.put(`${import.meta.env.VITE_API_URL || "http://localhost:3001"}/data/${id}`, update).then((res) => {
       navigate("/");
     }).catch(err => {
       console.error("Failed to update task", err);
@@ -45,7 +46,7 @@ const Update = () => {
     <div className="form-page-container">
       <div className="form-header">
         <h1>Update Task</h1>
-        <p>Modify the details of your existing task.</p>
+        <p>Modify the details of your existing task. Use this form to make changes to task descriptions, adjust priorities, or update deadlines.</p>
       </div>
 
       <div className="premium-form-card">
@@ -93,12 +94,12 @@ const Update = () => {
           </div>
 
           <div className="form-group" style={{ flex: 1 }}>
-            <label>Due Date</label>
+            <label>Date</label>
             <input
               type="date"
-              name="dueDate"
+              name="createdDate"
               className="form-input"
-              value={update.dueDate || ""}
+              value={update.createdDate || ""}
               onChange={handleUpdateChange}
               required
             />

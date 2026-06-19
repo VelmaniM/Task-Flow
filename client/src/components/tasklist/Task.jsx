@@ -12,6 +12,7 @@ const Task = () => {
   const [info, setInfo] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState("All");
+  const [priorityFilter, setPriorityFilter] = useState("All");
 
   useEffect(() => {
     const storedUser = localStorage.getItem("taskflow_user");
@@ -29,14 +30,14 @@ const Task = () => {
   }, [user]);
 
   const fetchTasks = () => {
-    axios.get(`http://localhost:3001/data?userId=${user.email}`).then((res) => {
+    axios.get(`${import.meta.env.VITE_API_URL || "http://localhost:3001"}/data?userId=${user.email}`).then((res) => {
       setInfo(res.data);
     });
   };
 
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this task?")) {
-      axios.delete(`http://localhost:3001/data/${id}`).then(() => {
+      axios.delete(`${import.meta.env.VITE_API_URL || "http://localhost:3001"}/data/${id}`).then(() => {
         setInfo(info.filter((item) => item.id !== id));
       });
     }
@@ -45,7 +46,7 @@ const Task = () => {
   const handleComplete = async (id, currentStatus) => {
     const newStatus = currentStatus === "Complete" ? "Inprogress" : "Complete";
     try {
-      await axios.patch(`http://localhost:3001/data/${id}`, {
+      await axios.patch(`${import.meta.env.VITE_API_URL || "http://localhost:3001"}/data/${id}`, {
         process: newStatus,
       });
       setInfo(
@@ -58,9 +59,9 @@ const Task = () => {
     }
   };
 
-  const isOverdue = (dueDate, status) => {
-    if (status === "Complete" || !dueDate) return false;
-    return new Date(dueDate) < new Date(new Date().toDateString());
+  const isOverdue = (createdDate, status) => {
+    if (status === "Complete" || !createdDate) return false;
+    return new Date(createdDate) < new Date(new Date().toDateString());
   };
 
   const isNewTask = (createdStr) => {
@@ -75,8 +76,9 @@ const Task = () => {
   const filteredTasks = info.filter((item) => {
     const matchesSearch = item.taskname.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           item.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFilter = filterType === "All" || item.process === filterType;
-    return matchesSearch && matchesFilter;
+    const matchesStatus = filterType === "All" || item.process === filterType;
+    const matchesPriority = priorityFilter === "All" || item.priority === priorityFilter;
+    return matchesSearch && matchesStatus && matchesPriority;
   });
 
   const pendingCount = info.filter((e) => e.process === "Inprogress").length;
@@ -85,8 +87,8 @@ const Task = () => {
   return (
     <div className="task-page-container">
       <div className="task-page-header">
-        <h1>Tasks</h1>
-        <p>Manage and track all your tasks efficiently.</p>
+        <h1>Task List</h1>
+        <p>Manage and track all your tasks efficiently. Use this list view to search, filter, and perform bulk actions on your tasks in a structured format.</p>
       </div>
 
       <div className="task-controls">
@@ -99,6 +101,20 @@ const Task = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+        </div>
+        
+        <div className="priority-filter-wrapper" style={{marginLeft: "1rem"}}>
+          <select 
+            value={priorityFilter} 
+            onChange={(e) => setPriorityFilter(e.target.value)}
+            className="premium-input"
+            style={{padding: "0.5rem 1rem", minWidth: "120px", cursor: "pointer"}}
+          >
+            <option value="All">All Priorities</option>
+            <option value="High">High Priority</option>
+            <option value="Medium">Medium Priority</option>
+            <option value="Low">Low Priority</option>
+          </select>
         </div>
 
         <div className="filter-tabs">
@@ -140,9 +156,9 @@ const Task = () => {
             <tbody>
               {filteredTasks.length > 0 ? (
                 filteredTasks.map((item) => {
-                  const overdue = isOverdue(item.dueDate, item.process);
+                  const overdue = isOverdue(item.createdDate, item.process);
                   return (
-                    <tr key={item.id} className={item.process === "Complete" ? "completed-row" : ""}>
+                    <tr key={item.id} className={`${item.process === "Complete" ? "completed-row" : ""} ${overdue ? "overdue-row" : ""}`}>
                       <td>
                         <input
                           type="checkbox"
@@ -161,7 +177,16 @@ const Task = () => {
                           }}>NEW</span>
                         )}
                       </td>
-                      <td>{item.description}</td>
+                      <td>
+                        {item.description}
+                        {item.tag && (
+                          <div style={{marginTop: "0.5rem"}}>
+                            <span style={{backgroundColor: "rgba(99, 102, 241, 0.1)", color: "var(--primary-color)", padding: "0.2rem 0.5rem", borderRadius: "12px", fontSize: "0.7rem", fontWeight: "600"}}>
+                              {item.tag}
+                            </span>
+                          </div>
+                        )}
+                      </td>
                       <td>
                         <span className={`badge priority-${item.priority?.toLowerCase() || 'low'}`}>
                           {item.priority || "Low"}

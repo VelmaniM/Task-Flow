@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { FaTasks, FaClock, FaCheckCircle } from "react-icons/fa";
-import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import "./Dashboard.css";
 
 const Dashboard = () => {
@@ -17,6 +16,15 @@ const Dashboard = () => {
     } else {
       navigate("/login");
     }
+
+    const handleStorageChange = () => {
+      const latestUser = localStorage.getItem("taskflow_user");
+      if (latestUser) {
+        setUser(JSON.parse(latestUser));
+      }
+    };
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
   }, [navigate]);
 
   useEffect(() => {
@@ -27,7 +35,7 @@ const Dashboard = () => {
 
   const fetchTasks = async (email) => {
     try {
-      const res = await axios.get(`http://localhost:3001/data?userId=${email}`);
+      const res = await axios.get(`${import.meta.env.VITE_API_URL || "http://localhost:3001"}/data?userId=${email}`);
       setTasks(res.data);
     } catch (err) {
       console.error("Failed to fetch tasks", err);
@@ -57,9 +65,18 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-container">
-      <div className="dashboard-header">
-        <h1>Welcome back, {user?.name || "User"} 👋</h1>
-        <p>Here is an overview of your tasks and productivity.</p>
+      <div className="dashboard-header" style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+        {user && (
+          <img 
+            src={user.avatarUrl || "https://ui-avatars.com/api/?name=" + user.email} 
+            alt="Profile" 
+            style={{ width: "60px", height: "60px", borderRadius: "50%", objectFit: "cover", border: "2px solid var(--primary-color)" }} 
+          />
+        )}
+        <div>
+          <h1>Dashboard</h1>
+          <p>Welcome back, {user?.taskname || user?.name || user?.email?.split('@')[0] || "User"} 👋. Here is an overview of your tasks and productivity. Use this section to get a high-level summary of your project's progress and identify what needs attention.</p>
+        </div>
       </div>
 
       <div className="stats-grid">
@@ -90,38 +107,6 @@ const Dashboard = () => {
           <div className="stat-info">
             <span className="stat-label">Completed</span>
             <span className="stat-value">{completeCount}</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="charts-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginTop: "1rem" }}>
-        <div className="chart-card" style={{ backgroundColor: "var(--surface-color)", padding: "1rem 1.5rem", borderRadius: "var(--border-radius-lg)", border: "1px solid var(--border-color)", boxShadow: "var(--shadow-sm)" }}>
-          <h3 style={{ marginBottom: "0.5rem", color: "var(--text-primary)", fontSize: "1rem" }}>Task Status</h3>
-          <div style={{ width: "100%", height: 200 }}>
-            <ResponsiveContainer>
-              <PieChart>
-                <Pie data={statusData} cx="50%" cy="50%" innerRadius={50} outerRadius={70} paddingAngle={5} dataKey="value">
-                  {statusData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        <div className="chart-card" style={{ backgroundColor: "var(--surface-color)", padding: "1rem 1.5rem", borderRadius: "var(--border-radius-lg)", border: "1px solid var(--border-color)", boxShadow: "var(--shadow-sm)" }}>
-          <h3 style={{ marginBottom: "0.5rem", color: "var(--text-primary)", fontSize: "1rem" }}>Task Priorities</h3>
-          <div style={{ width: "100%", height: 200 }}>
-            <ResponsiveContainer>
-              <BarChart data={priorityData} margin={{ top: 10, right: 30, left: -20, bottom: 0 }}>
-                <XAxis dataKey="name" tick={{fill: "var(--text-secondary)"}} axisLine={false} tickLine={false} />
-                <YAxis tick={{fill: "var(--text-secondary)"}} axisLine={false} tickLine={false} />
-                <Tooltip cursor={{fill: 'rgba(0,0,0,0.05)'}} />
-                <Bar dataKey="count" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
           </div>
         </div>
       </div>

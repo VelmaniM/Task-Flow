@@ -8,7 +8,9 @@ import Update from "./components/update/Update";
 import Task from "./components/tasklist/Task";
 import Navbar from "./components/nav/Navbar";
 import Login from "./components/login/Login";
-import KanbanBoard from "./components/board/KanbanBoard";
+import TaskBoard from "./components/board/TaskBoard";
+import Settings from "./components/settings/Settings";
+import ForgotPassword from "./components/login/ForgotPassword";
 
 const ProtectedRoute = ({ children }) => {
   const user = localStorage.getItem("taskflow_user");
@@ -26,40 +28,94 @@ const AuthRoute = ({ children }) => {
   return children;
 };
 
-const Layout = ({ children }) => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [isDarkMode, setIsDarkMode] = useState(false);
+const Layout = ({ children, isDarkMode, setIsDarkMode }) => {
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
+    const saved = localStorage.getItem("taskflow_sidebar");
+    return saved !== null ? saved === "true" : true;
+  });
 
   useEffect(() => {
-    if (isDarkMode) {
-      document.body.classList.add("dark-mode");
-    } else {
-      document.body.classList.remove("dark-mode");
-    }
-  }, [isDarkMode]);
+    localStorage.setItem("taskflow_sidebar", isSidebarOpen);
+  }, [isSidebarOpen]);
+
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    // Read user on mount
+    const storedUser = localStorage.getItem("taskflow_user");
+    if (storedUser) setUser(JSON.parse(storedUser));
+    
+    // Listen for changes
+    const handleStorageChange = () => {
+      const updatedUser = localStorage.getItem("taskflow_user");
+      if (updatedUser) setUser(JSON.parse(updatedUser));
+    };
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
 
   return (
     <div className="app-container">
-      <Navbar isSidebarOpen={isSidebarOpen} />
+      <Navbar isSidebarOpen={isSidebarOpen} onOpenSettings={() => setIsSettingsModalOpen(true)} />
       <div className={`main-content-area ${isSidebarOpen ? "" : "sidebar-closed"}`}>
-        <div className="top-header" style={{ display: "flex", justifyContent: "space-between" }}>
+        <div className="top-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "1rem 2rem", borderBottom: "1px solid var(--border-color)", backgroundColor: "var(--surface-color)" }}>
           <button className="global-toggle-btn" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
             <BsLayoutSidebar />
           </button>
           
-          <button className="global-toggle-btn" onClick={() => setIsDarkMode(!isDarkMode)}>
-            {isDarkMode ? <MdLightMode /> : <MdDarkMode />}
-          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+            <button className="global-toggle-btn" onClick={() => setIsDarkMode(!isDarkMode)}>
+              {isDarkMode ? <MdLightMode /> : <MdDarkMode />}
+            </button>
+            {user && (
+              <img 
+                src={user.avatarUrl || "https://ui-avatars.com/api/?name=" + user.email} 
+                alt="Profile" 
+                style={{ width: "40px", height: "40px", borderRadius: "50%", objectFit: "cover", cursor: "pointer", border: "2px solid var(--primary-color)" }}
+                onClick={() => setIsSettingsModalOpen(true)}
+              />
+            )}
+          </div>
         </div>
         <div className="page-content">
           {children}
         </div>
       </div>
+      {isSettingsModalOpen && (
+        <Settings onClose={() => setIsSettingsModalOpen(false)} />
+      )}
     </div>
   );
 };
 
 function App() {
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const saved = localStorage.getItem("taskflow_theme");
+    return saved === "dark";
+  });
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.body.classList.add("dark-mode");
+      localStorage.setItem("taskflow_theme", "dark");
+    } else {
+      document.body.classList.remove("dark-mode");
+      localStorage.setItem("taskflow_theme", "light");
+    }
+  }, [isDarkMode]);
+
+  // Disable right-click globally for safety
+  useEffect(() => {
+    const handleContextMenu = (e) => {
+      e.preventDefault();
+    };
+    document.addEventListener("contextmenu", handleContextMenu);
+    return () => {
+      document.removeEventListener("contextmenu", handleContextMenu);
+    };
+  }, []);
+
   return (
     <BrowserRouter basename="/Task-Flow/">
       <Routes>
@@ -71,12 +127,21 @@ function App() {
             </AuthRoute>
           } 
         />
+
+        <Route 
+          path="/forgot-password" 
+          element={
+            <AuthRoute>
+              <ForgotPassword />
+            </AuthRoute>
+          } 
+        />
         
         <Route 
           path="/" 
           element={
             <ProtectedRoute>
-              <Layout>
+              <Layout isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode}>
                 <Task />
               </Layout>
             </ProtectedRoute>
@@ -87,7 +152,7 @@ function App() {
           path="/dashboard" 
           element={
             <ProtectedRoute>
-              <Layout>
+              <Layout isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode}>
                 <Dashboard />
               </Layout>
             </ProtectedRoute>
@@ -98,8 +163,8 @@ function App() {
           path="/board" 
           element={
             <ProtectedRoute>
-              <Layout>
-                <KanbanBoard />
+              <Layout isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode}>
+                <TaskBoard />
               </Layout>
             </ProtectedRoute>
           } 
@@ -109,7 +174,7 @@ function App() {
           path="/add" 
           element={
             <ProtectedRoute>
-              <Layout>
+              <Layout isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode}>
                 <NewProject />
               </Layout>
             </ProtectedRoute>
@@ -120,12 +185,13 @@ function App() {
           path="/update/:id" 
           element={
             <ProtectedRoute>
-              <Layout>
+              <Layout isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode}>
                 <Update />
               </Layout>
             </ProtectedRoute>
           } 
         />
+        
       </Routes>
     </BrowserRouter>
   );

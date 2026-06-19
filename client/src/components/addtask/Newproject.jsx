@@ -21,7 +21,8 @@ const NewProject = () => {
     description: "",
     process: "Inprogress",
     priority: "",
-    dueDate: "",
+    createdDate: "",
+    tag: "",
   });
 
   const handleAddChange = (e) => {
@@ -30,7 +31,7 @@ const NewProject = () => {
   };
 
   const handleAdd = () => {
-    if (!add.taskname || !add.description || !add.priority || !add.dueDate) {
+    if (!add.taskname || !add.description || !add.priority || !add.createdDate) {
       alert("Please fill in all fields.");
       return;
     }
@@ -42,7 +43,7 @@ const NewProject = () => {
 
     const taskPayload = { ...add, userId: user.email };
 
-    axios.post("http://localhost:3001/data", taskPayload).then((res) => {
+    axios.post(`${import.meta.env.VITE_API_URL || "http://localhost:3001"}/data`, taskPayload).then((res) => {
       navigate("/");
     }).catch(err => {
       console.error("Failed to add task", err);
@@ -54,7 +55,7 @@ const NewProject = () => {
     <div className="form-page-container">
       <div className="form-header">
         <h1>Create New Task</h1>
-        <p>Add a new task to your list to stay organized.</p>
+        <p>Add a new task to your list to stay organized. Fill out the details below to define the scope, priority, and deadline for your new task.</p>
       </div>
 
       <div className="premium-form-card">
@@ -102,12 +103,12 @@ const NewProject = () => {
           </div>
 
           <div className="form-group" style={{ flex: 1 }}>
-            <label>Due Date</label>
+            <label>Date</label>
             <input
               type="date"
-              name="dueDate"
+              name="createdDate"
               className="form-input"
-              value={add.dueDate}
+              value={add.createdDate}
               onChange={handleAddChange}
               required
             />
