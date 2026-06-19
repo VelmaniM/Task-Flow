@@ -389,16 +389,7 @@ app.put('/data/:id', async (req, res) => {
   }
 });
 
-app.delete('/data/:id', async (req, res) => {
-  try {
-    await Task.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: 'Deleted' });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// Delete Completed Tasks
+// Delete Completed Tasks (must be BEFORE /data/:id to avoid route conflict)
 app.delete('/data/completed', async (req, res) => {
   const { userId } = req.query;
   try {
@@ -410,13 +401,22 @@ app.delete('/data/completed', async (req, res) => {
   }
 });
 
-// Delete ALL Tasks for a user
+// Delete ALL Tasks for a user (must be BEFORE /data/:id to avoid route conflict)
 app.delete('/data/all', async (req, res) => {
   const { userId } = req.query;
   try {
     if (!userId) return res.status(400).json({ message: 'userId required' });
     await Task.deleteMany({ userId });
     res.status(200).json({ message: 'All tasks deleted' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.delete('/data/:id', async (req, res) => {
+  try {
+    await Task.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: 'Deleted' });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
