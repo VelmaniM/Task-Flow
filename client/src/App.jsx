@@ -117,7 +117,7 @@ function App() {
   }, []);
 
   return (
-    <BrowserRouter basename="/Task-Flow/">
+    <BrowserRouter>
       <Routes>
         <Route 
           path="/login" 
