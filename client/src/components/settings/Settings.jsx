@@ -139,6 +139,7 @@ const Settings = ({ onClose, defaultView = "main" }) => {
       try {
         await axios.delete(`${import.meta.env.VITE_API_URL || "http://localhost:3001"}/data/completed?userId=${user.email}`);
         alert("Completed tasks cleared successfully.");
+        window.location.reload(); // Refresh to update UI
       } catch (err) {
         alert("Failed to clear tasks.");
       }
@@ -150,6 +151,7 @@ const Settings = ({ onClose, defaultView = "main" }) => {
       try {
         await axios.delete(`${import.meta.env.VITE_API_URL || "http://localhost:3001"}/data/all?userId=${user.email}`);
         alert("All tasks deleted successfully.");
+        window.location.reload(); // Refresh to update UI
       } catch (err) {
         alert("Failed to delete tasks.");
       }

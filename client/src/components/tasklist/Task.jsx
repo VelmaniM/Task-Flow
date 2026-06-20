@@ -74,8 +74,8 @@ const Task = () => {
 
   // Filter and search logic
   const filteredTasks = info.filter((item) => {
-    const matchesSearch = item.taskname.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          item.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = (item.taskname?.toLowerCase() || "").includes(searchQuery.toLowerCase()) || 
+                          (item.description?.toLowerCase() || "").includes(searchQuery.toLowerCase());
     const matchesStatus = filterType === "All" || item.process === filterType;
     const matchesPriority = priorityFilter === "All" || item.priority === priorityFilter;
     return matchesSearch && matchesStatus && matchesPriority;

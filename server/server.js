@@ -104,6 +104,11 @@ const Task = mongoose.model('Task', taskSchema);
 
 // --- Routes ---
 
+// Root route for health check
+app.get('/', (req, res) => {
+  res.send('TaskFlow API is running successfully!');
+});
+
 // Auth Login/Signup Route
 app.post('/api/auth/login', async (req, res) => {
   const { email, password, taskname, phone, jobTitle, bio } = req.body;
