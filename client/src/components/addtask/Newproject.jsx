@@ -21,7 +21,7 @@ const NewProject = () => {
     description: "",
     process: "Inprogress",
     priority: "",
-    createdDate: "",
+    createdDate: new Date().toISOString().split("T")[0],
     tag: "",
   });
 

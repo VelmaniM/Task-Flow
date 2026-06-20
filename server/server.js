@@ -5,6 +5,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import crypto from 'crypto';
+import nodemailer from 'nodemailer';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -25,6 +26,42 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/taskflow')
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('MongoDB connection error:', err));
+
+// --- Email Transporter Setup ---
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  }
+});
+
+const sendOtpEmail = async (email, otp) => {
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    console.warn("⚠️ EMAIL_USER or EMAIL_PASS not set in .env. Mocking email delivery.");
+    console.log(`\n==============================================`);
+    console.log(`📧 MOCK EMAIL SENT TO: ${email}`);
+    console.log(`🔓 OTP IS: ${otp}`);
+    console.log(`==============================================\n`);
+    return;
+  }
+  const mailOptions = {
+    from: `"TaskFlow Support" <${process.env.EMAIL_USER}>`,
+    to: email,
+    subject: 'Your Password Reset OTP - TaskFlow',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+        <h2 style="color: #4f46e5; text-align: center;">TaskFlow</h2>
+        <p>Hello,</p>
+        <p>You requested to reset or change your password. Use the following OTP to verify your request:</p>
+        <h1 style="font-size: 32px; letter-spacing: 5px; color: #333; text-align: center; padding: 10px; background: #f4f4f4; border-radius: 4px;">${otp}</h1>
+        <p>This OTP is valid for 5 minutes.</p>
+        <p>If you did not request this, please ignore this email or secure your account.</p>
+      </div>
+    `
+  };
+  await transporter.sendMail(mailOptions);
+};
 
 // --- Password Hashing Helpers ---
 const hashPassword = (password) => {
@@ -170,15 +207,13 @@ app.post('/api/auth/password/otp', async (req, res) => {
       { upsert: true, new: true }
     );
     
-    // SIMULATED EMAIL SEND (Log to terminal)
-    console.log(`\n==============================================`);
-    console.log(`📧 MOCK EMAIL SENT TO: ${email}`);
-    console.log(`🔒 YOUR PASSWORD CHANGE OTP IS: ${generatedOtp}`);
-    console.log(`==============================================\n`);
+    // Send Real Email
+    await sendOtpEmail(email, generatedOtp);
 
-    res.status(200).json({ message: 'OTP sent to email (check terminal)' });
+    res.status(200).json({ message: 'OTP sent to your email successfully' });
   } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err.message });
+    console.error("Error sending OTP: ", err);
+    res.status(500).json({ message: 'Server error while sending OTP', error: err.message });
   }
 });
 
@@ -217,14 +252,12 @@ app.post('/api/auth/request-otp', async (req, res) => {
       { upsert: true, new: true }
     );
     
-    console.log(`\n==============================================`);
-    console.log(`📧 MOCK EMAIL SENT TO: ${email}`);
-    console.log(`🔓 FORGOT PASSWORD OTP IS: ${generatedOtp}`);
-    console.log(`==============================================\n`);
+    await sendOtpEmail(email, generatedOtp);
 
-    res.status(200).json({ message: 'OTP sent to email (check terminal)' });
+    res.status(200).json({ message: 'OTP sent to your email successfully' });
   } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err.message });
+    console.error("Error sending Forgot Password OTP: ", err);
+    res.status(500).json({ message: 'Server error while sending OTP', error: err.message });
   }
 });
 
