@@ -79,7 +79,7 @@ const Layout = ({ children, isDarkMode, setIsDarkMode }) => {
                 src={user.avatarUrl || "https://ui-avatars.com/api/?name=" + user.email} 
                 alt="Profile" 
                 style={{ width: "40px", height: "40px", borderRadius: "50%", objectFit: "cover", cursor: "pointer", border: "2px solid var(--primary-color)" }}
-                onClick={() => openSettings("edit-profile")}
+                onClick={() => openSettings("main")}
                 title="View Profile"
               />
             )}
