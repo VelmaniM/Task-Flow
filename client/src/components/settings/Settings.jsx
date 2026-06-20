@@ -28,7 +28,7 @@ const Settings = ({ onClose, defaultView = "main" }) => {
   const [profileMsg, setProfileMsg] = useState("");
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("taskflow_user");
+    const storedUser = sessionStorage.getItem("taskflow_user");
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
       setUser(parsedUser);
@@ -73,7 +73,7 @@ const Settings = ({ onClose, defaultView = "main" }) => {
         
         const serverAvatarUrl = response.data.user.avatarUrl;
         const updatedUser = { ...user, avatarUrl: serverAvatarUrl };
-        localStorage.setItem("taskflow_user", JSON.stringify(updatedUser));
+        sessionStorage.setItem("taskflow_user", JSON.stringify(updatedUser));
         setUser(updatedUser);
         setAvatarUrl(serverAvatarUrl);
         
@@ -96,7 +96,7 @@ const Settings = ({ onClose, defaultView = "main" }) => {
         avatarUrl: ""
       });
       const updatedUser = { ...user, avatarUrl: "" };
-      localStorage.setItem("taskflow_user", JSON.stringify(updatedUser));
+      sessionStorage.setItem("taskflow_user", JSON.stringify(updatedUser));
       setUser(updatedUser);
       setAvatarUrl("");
       window.dispatchEvent(new Event('storage'));
@@ -121,7 +121,7 @@ const Settings = ({ onClose, defaultView = "main" }) => {
       
       const updatedUser = response.data.user;
       setUser(updatedUser);
-      localStorage.setItem("taskflow_user", JSON.stringify(updatedUser));
+      sessionStorage.setItem("taskflow_user", JSON.stringify(updatedUser));
       window.dispatchEvent(new Event('storage'));
       
       setProfileMsg("Profile updated successfully!");
@@ -164,7 +164,7 @@ const Settings = ({ onClose, defaultView = "main" }) => {
       await axios.delete(`${import.meta.env.VITE_API_URL || "http://localhost:3001"}/api/auth/account`, {
         data: { email: user.email }
       });
-      localStorage.removeItem("taskflow_user");
+      sessionStorage.removeItem("taskflow_user");
       navigate("/login");
     } catch (err) {
       alert("Failed to delete account.");

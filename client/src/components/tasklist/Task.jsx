@@ -15,7 +15,7 @@ const Task = () => {
   const [priorityFilter, setPriorityFilter] = useState("All");
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("taskflow_user");
+    const storedUser = sessionStorage.getItem("taskflow_user");
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     } else {

@@ -13,7 +13,7 @@ import Settings from "./components/settings/Settings";
 import ForgotPassword from "./components/login/ForgotPassword";
 
 const ProtectedRoute = ({ children }) => {
-  const user = localStorage.getItem("taskflow_user");
+  const user = sessionStorage.getItem("taskflow_user");
   if (!user) {
     return <Navigate to="/login" replace />;
   }
@@ -21,7 +21,7 @@ const ProtectedRoute = ({ children }) => {
 };
 
 const AuthRoute = ({ children }) => {
-  const user = localStorage.getItem("taskflow_user");
+  const user = sessionStorage.getItem("taskflow_user");
   if (user) {
     return <Navigate to="/dashboard" replace />;
   }
@@ -44,12 +44,12 @@ const Layout = ({ children, isDarkMode, setIsDarkMode }) => {
 
   useEffect(() => {
     // Read user on mount
-    const storedUser = localStorage.getItem("taskflow_user");
+    const storedUser = sessionStorage.getItem("taskflow_user");
     if (storedUser) setUser(JSON.parse(storedUser));
     
     // Listen for changes
     const handleStorageChange = () => {
-      const updatedUser = localStorage.getItem("taskflow_user");
+      const updatedUser = sessionStorage.getItem("taskflow_user");
       if (updatedUser) setUser(JSON.parse(updatedUser));
     };
     window.addEventListener("storage", handleStorageChange);

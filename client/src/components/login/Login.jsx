@@ -36,7 +36,7 @@ const Login = () => {
       });
 
       if (response.status === 200 || response.status === 201) {
-        localStorage.setItem("taskflow_user", JSON.stringify(response.data.user));
+        sessionStorage.setItem("taskflow_user", JSON.stringify(response.data.user));
         navigate("/dashboard");
       }
     } catch (err) {

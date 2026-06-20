@@ -10,7 +10,7 @@ const Dashboard = () => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("taskflow_user");
+    const storedUser = sessionStorage.getItem("taskflow_user");
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     } else {
@@ -18,7 +18,7 @@ const Dashboard = () => {
     }
 
     const handleStorageChange = () => {
-      const latestUser = localStorage.getItem("taskflow_user");
+      const latestUser = sessionStorage.getItem("taskflow_user");
       if (latestUser) {
         setUser(JSON.parse(latestUser));
       }

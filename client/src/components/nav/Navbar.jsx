@@ -12,14 +12,14 @@ const Navbar = ({ isSidebarOpen, onOpenSettings }) => {
 
   useEffect(() => {
     // Listen to local storage changes or just load once
-    const storedUser = localStorage.getItem("taskflow_user");
+    const storedUser = sessionStorage.getItem("taskflow_user");
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
     
     // Custom event listener if we dispatch updates
     const handleStorageChange = () => {
-      const updatedUser = localStorage.getItem("taskflow_user");
+      const updatedUser = sessionStorage.getItem("taskflow_user");
       if (updatedUser) setUser(JSON.parse(updatedUser));
     };
     
@@ -29,7 +29,7 @@ const Navbar = ({ isSidebarOpen, onOpenSettings }) => {
   }, [location]); // Reload user on route change as a simple update mechanism
 
   const handleLogout = () => {
-    localStorage.removeItem("taskflow_user");
+    sessionStorage.removeItem("taskflow_user");
     navigate("/login");
   };
 
