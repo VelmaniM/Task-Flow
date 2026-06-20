@@ -134,17 +134,6 @@ const Settings = ({ onClose, defaultView = "main" }) => {
     }
   };
 
-  const handleClearCompleted = async () => {
-    if (window.confirm("Are you sure you want to delete all completed tasks?")) {
-      try {
-        await axios.delete(`${import.meta.env.VITE_API_URL || "http://localhost:3001"}/data/completed?userId=${user.email}`);
-        alert("Completed tasks cleared successfully.");
-        window.location.reload(); // Refresh to update UI
-      } catch (err) {
-        alert("Failed to clear tasks.");
-      }
-    }
-  };
 
   const handleClearAll = async () => {
     if (window.confirm("Are you sure you want to delete ALL tasks? This action cannot be undone.")) {
@@ -283,18 +272,6 @@ const Settings = ({ onClose, defaultView = "main" }) => {
                   </div>
                 </div>
 
-                <div className="settings-list-item">
-                  <div className="settings-item-left">
-                    <div className="settings-icon danger-icon"><FaTrashAlt /></div>
-                    <div>
-                      <h4>Clear Completed</h4>
-                      <p>Remove all finished tasks</p>
-                    </div>
-                  </div>
-                  <div className="settings-item-right">
-                    <button className="settings-action-btn danger-outline" onClick={handleClearCompleted}>Clear</button>
-                  </div>
-                </div>
 
                 <div className="settings-list-item">
                   <div className="settings-item-left">
